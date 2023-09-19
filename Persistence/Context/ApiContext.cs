@@ -1,11 +1,12 @@
 ﻿using Entities.Entity;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Persistence.Context;
 
 [ExcludeFromCodeCoverage]
-public class ApiContext : DbContext
+public class ApiContext : IdentityDbContext
 {
     public ApiContext(DbContextOptions<ApiContext> options)
         : base(options)
@@ -15,6 +16,9 @@ public class ApiContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // call base method to create identity tables
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
         // Configuring indirect many-to-many relationship between Day and Person using explicit class DayPersonEntity
