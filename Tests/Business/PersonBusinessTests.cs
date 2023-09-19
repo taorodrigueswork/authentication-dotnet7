@@ -32,7 +32,7 @@ public class PersonBusinessTests
     }
 
     [Test, CustomAutoData]
-    public async Task Add_PersonDto_ReturnsPersonEntityAsync(PersonDto personDto, PersonEntity personEntity)
+    public async Task Add_PersonDto_ReturnsPersonEntityAsync(PersonDtoRequest personDto, PersonEntity personEntity)
     {
         // Assert
         _personRepositoryMock?.Setup(r => r.InsertAsync(It.IsAny<PersonEntity>())).ReturnsAsync(personEntity);
@@ -91,7 +91,7 @@ public class PersonBusinessTests
     }
 
     [Test, CustomAutoData]
-    public async Task Update_PersonDto_ReturnsPersonEntityAsync(int id, PersonDto personDto, PersonEntity personEntity)
+    public async Task Update_PersonDto_ReturnsPersonEntityAsync(int id, PersonDtoRequest personDto, PersonEntity personEntity)
     {
         // Arrange
         personEntity.Id = id;
@@ -108,7 +108,7 @@ public class PersonBusinessTests
     }
 
     [Test, CustomAutoData]
-    public void Update_NotFound_ReturnsNullAsync(int id, PersonDto personDto)
+    public void Update_NotFound_ReturnsNullAsync(int id, PersonDtoRequest personDto)
     {
         // Arrange
         PersonEntity? personEntity = null;

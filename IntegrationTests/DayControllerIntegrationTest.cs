@@ -83,7 +83,7 @@ public class DayControllerIntegrationTest : TestingWebAppFactory
 
         _context?.SaveChanges();
 
-        DayDto dayDto = _fixture?.Build<DayDto>()
+        DayDtoRequest dayDto = _fixture?.Build<DayDtoRequest>()
                                 ?.With(p => p.People, new List<int>() { personEntity.Id })
                                 ?.With(p => p.ScheduleId, scheduleEntity.Id)
                                 ?.Create()!;
@@ -110,7 +110,7 @@ public class DayControllerIntegrationTest : TestingWebAppFactory
     {
         // Arrange
         var jsonContent = JsonConvert.SerializeObject(
-            new DayDto() { ScheduleId = 0, People = new List<int>(), Day = DateTime.Now });
+            new DayDtoRequest() { ScheduleId = 0, People = new List<int>(), Day = DateTime.Now });
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
@@ -185,7 +185,7 @@ public class DayControllerIntegrationTest : TestingWebAppFactory
         _context?.Day?.Add(dayEntity);
         _context?.SaveChanges();
 
-        DayDto dayDto = new()
+        DayDtoRequest dayDto = new()
         {
             People = new List<int>() { personEntity2.Id },
             Day = DateTime.Now,
@@ -211,7 +211,7 @@ public class DayControllerIntegrationTest : TestingWebAppFactory
     }
 
     [Test, CustomAutoData]
-    public async Task UpdateDayAsync_ReturnsNotFoundResult_WhenDayDoesNotExist(DayDto dayDto)
+    public async Task UpdateDayAsync_ReturnsNotFoundResult_WhenDayDoesNotExist(DayDtoRequest dayDto)
     {
         // Arrange
         var jsonContent = JsonConvert.SerializeObject(dayDto);
@@ -230,7 +230,7 @@ public class DayControllerIntegrationTest : TestingWebAppFactory
     {
         // Arrange
         var jsonContent = JsonConvert.SerializeObject(
-            new DayDto() { ScheduleId = 0, People = new List<int>(), Day = DateTime.Now });
+            new DayDtoRequest() { ScheduleId = 0, People = new List<int>(), Day = DateTime.Now });
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act

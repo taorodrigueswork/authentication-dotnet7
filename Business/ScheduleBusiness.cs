@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Business;
-public class ScheduleBusiness : IBusiness<ScheduleDto, ScheduleEntity>
+public class ScheduleBusiness : IBusiness<ScheduleDtoRequest, ScheduleEntity>
 {
     private readonly IMapper _mapper;
     private readonly ILogger<ScheduleBusiness> _logger;
@@ -20,7 +20,7 @@ public class ScheduleBusiness : IBusiness<ScheduleDto, ScheduleEntity>
         _scheduleRepository = repository;
         _dayRepository = dayRepository;
     }
-    public async Task<ScheduleEntity> Add(ScheduleDto scheduleDto)
+    public async Task<ScheduleEntity> Add(ScheduleDtoRequest scheduleDto)
     {
         var schedule = await _scheduleRepository.InsertAsync(_mapper.Map<ScheduleEntity>(scheduleDto));
 
@@ -42,7 +42,7 @@ public class ScheduleBusiness : IBusiness<ScheduleDto, ScheduleEntity>
 
     public async Task<ScheduleEntity?> GetById(int id) => await _scheduleRepository.GetByIdWithSubclassesAsync(id);
 
-    public async Task<ScheduleEntity?> Update(int id, ScheduleDto scheduleDto)
+    public async Task<ScheduleEntity?> Update(int id, ScheduleDtoRequest scheduleDto)
     {
         var schedule = await _scheduleRepository.GetByIdWithSubclassesAsync(id);
 

@@ -36,7 +36,7 @@ public class DayBusinessTest
     }
 
     [Test, CustomAutoData]
-    public async Task AddNewDayAsync(DayDto dayDto, DayEntity dayEntity)
+    public async Task AddNewDayAsync(DayDtoRequest dayDto, DayEntity dayEntity)
     {
         // Arrange
         _dayRepositoryMock?.Setup(repo => repo.InsertAsync(It.IsAny<DayEntity>())).ReturnsAsync(dayEntity);
@@ -97,7 +97,7 @@ public class DayBusinessTest
     }
 
     [Test, CustomAutoData]
-    public async Task UpdatingDay_Async(int dayId, DayDto dayDto, DayEntity dayEntity, List<PersonEntity> personEntities)
+    public async Task UpdatingDay_Async(int dayId, DayDtoRequest dayDto, DayEntity dayEntity, List<PersonEntity> personEntities)
     {
         // Arrange
         dayEntity.Id = dayId;
@@ -136,7 +136,7 @@ public class DayBusinessTest
         _dayRepositoryMock?.Setup(repo => repo.GetDayWithSubclassesAsync(dayId))!.ReturnsAsync(dayEntity);
 
         // Act
-        Assert.ThrowsAsync<ArgumentNullException>(() => _dayBusiness?.Update(dayId, It.IsAny<DayDto>())!);
+        Assert.ThrowsAsync<ArgumentNullException>(() => _dayBusiness?.Update(dayId, It.IsAny<DayDtoRequest>())!);
     }
 
     [Test, CustomAutoData]
@@ -146,7 +146,7 @@ public class DayBusinessTest
         dayEntity.Id = dayId;
         dayEntity.Schedule.Id = 1;
         dayEntity.People = new List<PersonEntity> { new PersonEntity() { Id = 1 } };
-        var dayDto = new DayDto()
+        var dayDto = new DayDtoRequest()
         {
             Day = DateTime.Now,
             People = new List<int> { 2, 3 },

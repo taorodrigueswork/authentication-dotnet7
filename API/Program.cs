@@ -18,7 +18,10 @@ using Persistence.Repository.GenericRepository;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using API.Configurations;
 using API.CustomMiddlewares;
+using Entities.Configurations;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -65,7 +68,7 @@ try
         });
 
         // Add services to the container.
-        services.AddScoped<DbContext, ApiContext>();
+        services.AddScoped<IdentityDbContext, ApiContext>();
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IDayRepository, DayRepository>();
@@ -73,9 +76,10 @@ try
         services.AddScoped<IDayPersonRepository, DayPersonRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
-        services.AddScoped<IBusiness<PersonDto, PersonEntity>, PersonBusiness>();
-        services.AddScoped<IBusiness<DayDto, DayEntity>, DayBusiness>();
-        services.AddScoped<IBusiness<ScheduleDto, ScheduleEntity>, ScheduleBusiness>();
+        services.AddScoped<IBusiness<PersonDtoRequest, PersonEntity>, PersonBusiness>();
+        services.AddScoped<IBusiness<DayDtoRequest, DayEntity>, DayBusiness>();
+        services.AddScoped<IBusiness<ScheduleDtoRequest, ScheduleEntity>, ScheduleBusiness>();
+        services.AddScoped<IIdentityBusiness, IdentityBusiness>();
 
         // Invoking action filters to validate the model state for all entities received in POST and PUT requests
         // https://code-maze.com/aspnetcore-modelstate-validation-web-api/
@@ -85,11 +89,14 @@ try
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+        builder.Services.ConfigureOptions<SwaggerSetup>();
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        var serilogUrl = builder.Configuration.GetRequiredSection("Seq").Get<Seq>()?.Url;
+        
+        var seqUrl = builder.Configuration.GetRequiredSection("Seq").Get<Seq>()?.Url;
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        // get configuration from appsettings.json using Option Pattern. After that I can use JwtOptions inject in a Business class
+        builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Bearer"));
 
         builder.Services.AddDbContext<ApiContext>(options =>
         {
@@ -97,13 +104,16 @@ try
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
 
+        // Adding JWT Bearer Authentication
+        builder.Services.AddAuthentication().AddJwtBearer();
+
         // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
         builder.Host.UseSerilog(new LoggerConfiguration()
             .Enrich.FromLogContext()
             .Enrich.WithMachineName()
             .WriteTo.Console()
             .WriteTo.Debug()
-            .WriteTo.Seq(serverUrl: serilogUrl!)
+            .WriteTo.Seq(serverUrl: seqUrl!)
             .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
             .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
             .ReadFrom.Configuration(builder.Configuration)

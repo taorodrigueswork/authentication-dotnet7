@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Persistence.Interfaces;
 
 namespace Business;
-public class PersonBusiness : IBusiness<PersonDto, PersonEntity>
+public class PersonBusiness : IBusiness<PersonDtoRequest, PersonEntity>
 {
     private readonly IMapper _mapper;
     private readonly ILogger<PersonBusiness> _logger;
@@ -16,7 +16,7 @@ public class PersonBusiness : IBusiness<PersonDto, PersonEntity>
         _personRepository = personRepository;
     }
 
-    public async Task<PersonEntity> Add(PersonDto personDto)
+    public async Task<PersonEntity> Add(PersonDtoRequest personDto)
     {
         var personEntity = _mapper.Map<PersonEntity>(personDto);
         var person = await _personRepository.InsertAsync(personEntity);
@@ -41,7 +41,7 @@ public class PersonBusiness : IBusiness<PersonDto, PersonEntity>
         return await _personRepository.FindByIdAsync(id);
     }
 
-    public async Task<PersonEntity?> Update(int id, PersonDto personDTO)
+    public async Task<PersonEntity?> Update(int id, PersonDtoRequest personDTO)
     {
         var person = await _personRepository.FindByIdAsync(id);
 

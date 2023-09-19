@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Entities.DTO.Request.Day;
 
 [ExcludeFromCodeCoverage]
-public record DayDto
+public record DayDtoRequest
 {
     public required DateTime Day { get; init; }
 

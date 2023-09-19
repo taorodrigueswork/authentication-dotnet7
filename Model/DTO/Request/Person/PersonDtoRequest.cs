@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Entities.DTO.Request.Person;
 
 [ExcludeFromCodeCoverage]
-public record PersonDto
+public record PersonDtoRequest
 {
     [Required(AllowEmptyStrings = false)]
     public required string Name { get; init; }

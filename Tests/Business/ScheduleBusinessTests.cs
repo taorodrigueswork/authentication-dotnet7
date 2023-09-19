@@ -38,7 +38,7 @@ public class ScheduleBusinessTests
     }
 
     [Test, CustomAutoData]
-    public async Task Add_ScheduleDto_ReturnsScheduleEntityAsync(ScheduleDto scheduleDto, ScheduleEntity scheduleEntity)
+    public async Task Add_ScheduleDto_ReturnsScheduleEntityAsync(ScheduleDtoRequest scheduleDto, ScheduleEntity scheduleEntity)
     {
         // Arrange
         _scheduleRepositoryMock?.Setup(r => r.InsertAsync(It.IsAny<ScheduleEntity>())).ReturnsAsync(scheduleEntity);
@@ -97,7 +97,7 @@ public class ScheduleBusinessTests
     }
 
     [Test, CustomAutoData]
-    public async Task Update_ScheduleDto_Returns_Schedule_Entity_Async(int id, ScheduleDto scheduleDto, ScheduleEntity scheduleEntity)
+    public async Task Update_ScheduleDto_Returns_Schedule_Entity_Async(int id, ScheduleDtoRequest scheduleDto, ScheduleEntity scheduleEntity)
     {
         // Arrange
         var dayEntityList = _fixture.CreateMany<DayEntity>(3).ToList();
@@ -118,7 +118,7 @@ public class ScheduleBusinessTests
     }
 
     [Test, CustomAutoData]
-    public void Update_NotFound_ReturnsNullAsync(int id, ScheduleDto scheduleDto)
+    public void Update_NotFound_ReturnsNullAsync(int id, ScheduleDtoRequest scheduleDto)
     {
         // Arrange
         ScheduleEntity? scheduleEntity = null;

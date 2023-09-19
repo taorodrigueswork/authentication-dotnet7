@@ -37,7 +37,11 @@ public class ExceptionHandlingMiddleware
         switch (exception)
         {
             case ApplicationException ex:
-                if (ex.Message.Contains("Invalid Token"))
+                if (ex.Message.Contains("Invalid Token") ||
+                    ex.Message.Contains("This account is blocked/locked out") ||
+                    ex.Message.Contains("This account doesn't have permission to login in this system.") ||
+                    ex.Message.Contains("You need to confirm login in your 2FA") ||
+                    ex.Message.Contains("Username or password is wrong"))
                 {
                     response.StatusCode = (int)HttpStatusCode.Forbidden;
                     break;

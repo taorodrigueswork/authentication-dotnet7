@@ -1,6 +1,7 @@
 using Business.Interfaces;
 using Entities.DTO.Request.Schedule;
 using Entities.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -10,11 +11,12 @@ namespace API.Controllers;
 [Produces("application/json")]
 [Consumes("application/json")]
 [ApiVersion("1.0")]
+[Authorize]
 public class ScheduleController : ControllerBase
 {
-    private readonly IBusiness<ScheduleDto, ScheduleEntity> _scheduleBusiness;
+    private readonly IBusiness<ScheduleDtoRequest, ScheduleEntity> _scheduleBusiness;
 
-    public ScheduleController(IBusiness<ScheduleDto, ScheduleEntity> scheduleBusiness)
+    public ScheduleController(IBusiness<ScheduleDtoRequest, ScheduleEntity> scheduleBusiness)
     {
         _scheduleBusiness = scheduleBusiness;
     }
@@ -42,7 +44,7 @@ public class ScheduleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ScheduleEntity))]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> AddScheduleAsync([FromBody] ScheduleDto scheduleDto)
+    public async Task<IActionResult> AddScheduleAsync([FromBody] ScheduleDtoRequest scheduleDto)
     {
         return scheduleDto == null ? BadRequest("Schedule cannot be null") : Created(string.Empty, await _scheduleBusiness.Add(scheduleDto));
     }
@@ -58,7 +60,7 @@ public class ScheduleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> UpdateScheduleAsync(int id, [FromBody] ScheduleDto scheduleDto)
+    public async Task<IActionResult> UpdateScheduleAsync(int id, [FromBody] ScheduleDtoRequest scheduleDto)
     {
         var updatedSchedule = await _scheduleBusiness.Update(id, scheduleDto);
 

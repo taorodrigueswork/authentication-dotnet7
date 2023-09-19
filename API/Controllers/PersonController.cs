@@ -1,6 +1,7 @@
 using Business.Interfaces;
 using Entities.DTO.Request.Person;
 using Entities.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -10,11 +11,12 @@ namespace API.Controllers;
 [Produces("application/json")]
 [Consumes("application/json")]
 [ApiVersion("1.0")]
+[Authorize]
 public class PersonController : ControllerBase
 {
-    private readonly IBusiness<PersonDto, PersonEntity> _personBusiness;
+    private readonly IBusiness<PersonDtoRequest, PersonEntity> _personBusiness;
 
-    public PersonController(IBusiness<PersonDto, PersonEntity> personBusiness)
+    public PersonController(IBusiness<PersonDtoRequest, PersonEntity> personBusiness)
     {
         _personBusiness = personBusiness;
     }
@@ -42,7 +44,7 @@ public class PersonController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PersonEntity))]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> AddPersonAsync([FromBody] PersonDto personDto)
+    public async Task<IActionResult> AddPersonAsync([FromBody] PersonDtoRequest personDto)
     {
         return Created(string.Empty, await _personBusiness.Add(personDto));
     }
@@ -58,7 +60,7 @@ public class PersonController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> UpdatePersonAsync(int id, [FromBody] PersonDto personDTO)
+    public async Task<IActionResult> UpdatePersonAsync(int id, [FromBody] PersonDtoRequest personDTO)
     {
         var updatedPerson = await _personBusiness.Update(id, personDTO);
 

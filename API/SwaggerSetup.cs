@@ -10,12 +10,12 @@ namespace API;
 /// For more information: https://blog.christian-schou.dk/how-to-use-api-versioning-in-net-core-web-api/
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class ConfigureSwaggerOptions
+public class SwaggerSetup
   : IConfigureNamedOptions<SwaggerGenOptions>
 {
     private readonly IApiVersionDescriptionProvider _provider;
 
-    public ConfigureSwaggerOptions(
+    public SwaggerSetup(
         IApiVersionDescriptionProvider provider)
     {
         _provider = provider;

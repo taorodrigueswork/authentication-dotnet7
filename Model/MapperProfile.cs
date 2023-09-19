@@ -23,17 +23,17 @@ public class AutoMapperProfile : Profile
             .ForMember(source => source.Days, destination => destination.Ignore())
             .ForMember(source => source.Phone, destination => destination.Ignore());
 
-        CreateMap<PersonEntity, PersonDto>().ReverseMap()
+        CreateMap<PersonEntity, PersonDtoRequest>().ReverseMap()
             .ForMember(source => source.Id, destination => destination.Ignore())
             .ForMember(source => source.Days, destination => destination.Ignore());
 
-        CreateMap<ScheduleEntity, ScheduleDto>().ReverseMap()
+        CreateMap<ScheduleEntity, ScheduleDtoRequest>().ReverseMap()
             .ForMember(source => source.Id, destination => destination.Ignore())
             .ForMember(source => source.Name, destination => destination.MapFrom(src => src.Name))
             .ForMember(source => source.Created, destination => destination.Ignore())
             .ForMember(source => source.Days, destination => destination.Ignore());
 
-        CreateMap<DayEntity, DayDto>().ReverseMap()
+        CreateMap<DayEntity, DayDtoRequest>().ReverseMap()
             .ForMember(source => source.Id, destination => destination.Ignore())
             .ForPath(source => source.Schedule.Id, destination => destination.MapFrom(src => src.ScheduleId));
 

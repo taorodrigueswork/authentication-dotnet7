@@ -1,6 +1,7 @@
 ﻿using Business.Interfaces;
 using Entities.DTO.Request.Day;
 using Entities.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -10,11 +11,12 @@ namespace API.Controllers;
 [Produces("application/json")]
 [Consumes("application/json")]
 [ApiVersion("1.0")]
+[Authorize]
 public class DayController : ControllerBase
 {
-    private readonly IBusiness<DayDto, DayEntity> _dayBusiness;
+    private readonly IBusiness<DayDtoRequest, DayEntity> _dayBusiness;
 
-    public DayController(IBusiness<DayDto, DayEntity> dayBusiness)
+    public DayController(IBusiness<DayDtoRequest, DayEntity> dayBusiness)
     {
         _dayBusiness = dayBusiness;
     }
@@ -42,7 +44,7 @@ public class DayController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(DayEntity))]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> AddDayAsync([FromBody] DayDto dayDto)
+    public async Task<IActionResult> AddDayAsync([FromBody] DayDtoRequest dayDto)
     {
         return Created(string.Empty, await _dayBusiness.Add(dayDto));
     }
@@ -58,7 +60,7 @@ public class DayController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
-    public async Task<IActionResult> UpdateDayAsync(int id, [FromBody] DayDto dayDTO)
+    public async Task<IActionResult> UpdateDayAsync(int id, [FromBody] DayDtoRequest dayDTO)
     {
         var updatedDay = await _dayBusiness.Update(id, dayDTO);
 

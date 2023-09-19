@@ -68,7 +68,7 @@ public class PersonControllerIntegrationTest : TestingWebAppFactory
     }
 
     [Test, CustomAutoData]
-    public async Task AddPerson_ValidInput_Async(PersonDto personDto)
+    public async Task AddPerson_ValidInput_Async(PersonDtoRequest personDto)
     {
         // Arrange
         var jsonContent = JsonConvert.SerializeObject(personDto);
@@ -91,7 +91,7 @@ public class PersonControllerIntegrationTest : TestingWebAppFactory
     public async Task AddPerson_InvalidInput_Async()
     {
         // Arrange
-        var jsonContent = JsonConvert.SerializeObject(new PersonDto() { Email = "", Name = "", Phone = "" });
+        var jsonContent = JsonConvert.SerializeObject(new PersonDtoRequest() { Email = "", Name = "", Phone = "" });
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
@@ -143,7 +143,7 @@ public class PersonControllerIntegrationTest : TestingWebAppFactory
         _context?.Person?.Add(personEntity);
         _context?.SaveChanges();
 
-        PersonDto personDto = new() { Email = "NewEmail", Name = "NewName", Phone = "NewPhone" };
+        PersonDtoRequest personDto = new() { Email = "NewEmail", Name = "NewName", Phone = "NewPhone" };
         var jsonContent = JsonConvert.SerializeObject(personDto);
 
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -166,7 +166,7 @@ public class PersonControllerIntegrationTest : TestingWebAppFactory
     public async Task UpdatePersonAsync_ReturnsNotFoundResult_WhenPersonDoesNotExist()
     {
         // Arrange
-        PersonDto personDto = new() { Email = "NewEmail", Name = "NewName", Phone = "NewPhone" };
+        PersonDtoRequest personDto = new() { Email = "NewEmail", Name = "NewName", Phone = "NewPhone" };
         var jsonContent = JsonConvert.SerializeObject(personDto);
 
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -183,7 +183,7 @@ public class PersonControllerIntegrationTest : TestingWebAppFactory
     public async Task UpdatePersonAsync_ReturnsUnprocessableEntityObjectResult_WhenModelIsInvalid()
     {
         // Arrange
-        var jsonContent = JsonConvert.SerializeObject(new PersonDto() { Email = "", Name = "", Phone = "" });
+        var jsonContent = JsonConvert.SerializeObject(new PersonDtoRequest() { Email = "", Name = "", Phone = "" });
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
