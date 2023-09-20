@@ -75,10 +75,11 @@ public class IdentityBusiness : IIdentityBusiness
 
         return GenerateTokens(user, claims);
     }
+
     private UserLoginDtoResponse GenerateTokens(IdentityUser user, IList<Claim> claims)
     {
         var jwtToken = _jwtBusiness.GenerateJwtToken(user, claims);
-        var refreshToken = _jwtBusiness.GenerateJwtToken(user, claims, true);
+        var refreshToken = _jwtBusiness.GenerateJwtToken(user, new List<Claim>(), true);
 
         return new UserLoginDtoResponse() { AccessToken = jwtToken, RefreshToken = refreshToken };
     }

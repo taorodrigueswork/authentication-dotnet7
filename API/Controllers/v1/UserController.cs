@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
+using Entities.Constants;
 
 namespace API.Controllers.v1;
 
@@ -63,6 +64,8 @@ public class UserController : BaseController
     [ProducesResponseType(typeof(UserLoginDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
+    //[Authorize(Roles = Roles.Admin)] // Pra validar se o usuario tem a Role exigida
+    //[ClaimsAuthorize(ClaimTypes.Produto, "Ler")] // https://www.youtube.com/watch?v=IGqYodVNB6c&ab_channel=Andr%C3%A9Secco
     [HttpPost("refresh-token")]
     public async Task<ActionResult<UserLoginDtoResponse>> RefreshLogin()
     {

@@ -41,6 +41,7 @@ public class ExceptionHandlingMiddleware
                     ex.Message.Contains("This account is blocked/locked out") ||
                     ex.Message.Contains("This account doesn't have permission to login in this system.") ||
                     ex.Message.Contains("You need to confirm login in your 2FA") ||
+                    ex.Message.Contains("User was not created") ||
                     ex.Message.Contains("Username or password is wrong"))
                 {
                     response.StatusCode = (int)HttpStatusCode.Forbidden;
