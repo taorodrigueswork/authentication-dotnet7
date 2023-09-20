@@ -1,25 +1,16 @@
 using API;
-using API.AppSettings;
+using API.Configurations;
 using API.CustomMiddlewares;
+using API.DependencyInjection;
 using API.Extensions;
-using Business;
 using Business.Interfaces;
-using Entities.Configurations;
-using Entities.DTO.Request.Day;
-using Entities.DTO.Request.Person;
-using Entities.DTO.Request.Schedule;
-using Entities.Entity;
+using Entities.Constants;
+using Entities.DTO.Request.UserIdentity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
-using Persistence.Interfaces;
-using Persistence.Interfaces.GenericRepository;
-using Persistence.Repository;
-using Persistence.Repository.GenericRepository;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
@@ -40,6 +31,31 @@ try
 
     ConfigureMiddleware(app);
 
+    // seed data creating roles and user admin
+    using (var scope = app.Services.CreateScope())
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+        var identityBusiness = scope.ServiceProvider.GetRequiredService<IIdentityBusiness>();
+
+        // creating admin user
+        var newUser = await identityBusiness.SignUpUser(new UserSignUpDtoRequest()
+        { Email = "admin@teste.com", Password = "admin123" });
+
+        // creating roles
+        if (!(await roleManager.RoleExistsAsync(Roles.Admin)) &&
+            !(await roleManager.RoleExistsAsync(Roles.User)))
+        {
+            await roleManager.CreateAsync(new IdentityRole(Roles.User));
+            await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
+        }
+
+        // add admin role to admin user
+        await userManager.AddToRoleAsync(newUser, Roles.Admin);
+        await userManager.AddToRoleAsync(newUser, Roles.User);
+    }
+
     app.Run();
 
 
@@ -54,34 +70,7 @@ try
         });
 
         // Add API versioning to the application
-        builder.Services.AddApiVersioning(options =>
-        {
-            options.AssumeDefaultVersionWhenUnspecified = true;
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-            options.ReportApiVersions = true;
-            options.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader());
-        });
-
-        builder.Services.AddVersionedApiExplorer(options =>
-        {
-            options.GroupNameFormat = "'v'VVV";
-            options.SubstituteApiVersionInUrl = true;
-        });
-
-        // Add services to the container.
-        services.AddScoped<IdentityDbContext, ApiContext>();
-
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-        services.AddScoped<IDayRepository, DayRepository>();
-        services.AddScoped<IPersonRepository, PersonRepository>();
-        services.AddScoped<IDayPersonRepository, DayPersonRepository>();
-        services.AddScoped<IScheduleRepository, ScheduleRepository>();
-
-        services.AddScoped<IBusiness<PersonDtoRequest, PersonEntity>, PersonBusiness>();
-        services.AddScoped<IBusiness<DayDtoRequest, DayEntity>, DayBusiness>();
-        services.AddScoped<IBusiness<ScheduleDtoRequest, ScheduleEntity>, ScheduleBusiness>();
-        services.AddScoped<IIdentityBusiness, IdentityBusiness>();
-        services.AddScoped<IJwtBusiness, JwtBusiness>();
+        builder.Services.AddVersioning();
 
         // Invoking action filters to validate the model state for all entities received in POST and PUT requests
         // https://code-maze.com/aspnetcore-modelstate-validation-web-api/
@@ -93,17 +82,10 @@ try
         builder.Services.AddSwaggerGen();
         builder.Services.ConfigureOptions<SwaggerSetup>();
 
-
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        
+
         var seqUrl = builder.Configuration.GetRequiredSection("Seq").Get<Seq>()?.Url;
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-        // identity configuration
-        services.AddDefaultIdentity<IdentityUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApiContext>()
-            .AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<ApiContext>(options =>
         {
@@ -127,17 +109,17 @@ try
             .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
             .ReadFrom.Configuration(builder.Configuration)
             .CreateLogger());
+
+        // Add services to the container.
+        builder.Services.RegisterServices(builder.Configuration);
     }
 
     void ConfigureMiddleware(WebApplication app)
     {
         // Migrate latest database changes during startup
-        using (var scope = app.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
-
-            dbContext.Database.Migrate();
-        }
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
+        dbContext.Database.Migrate();
 
         var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
