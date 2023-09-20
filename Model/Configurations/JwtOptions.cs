@@ -1,12 +1,18 @@
-﻿namespace Entities.Configurations;
+﻿using Microsoft.IdentityModel.Tokens;
 
-public record JwtOptions
+namespace Entities.Configurations;
+
+public class JwtOptions
 {
-    public required string ValidAudience { get; init; }
+    public required string ValidAudience { get; set; }
 
-    public required string ValidIssuer { get; init; }
+    public required string ValidIssuer { get; set; }
 
-    public required string TokenExpiryTimeInHour { get; init; }
+    public required string TokenExpirationTimeInHour { get; set; }
 
-    public required string PrivateSecret { get; init; }
+    public required string RefreshTokenExpirationTimeInHour { get; set; }
+
+    public required string PrivateSecret { get; set; }
+
+    public required SigningCredentials SigningCredentials { get; set; }
 }

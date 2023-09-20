@@ -12,7 +12,6 @@ public class IdentityBusiness : IIdentityBusiness
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IJwtBusiness _jwtBusiness;
-    //private readonly JwtOptions _jwtOptions;
 
     public IdentityBusiness(SignInManager<IdentityUser> signInManager,
         UserManager<IdentityUser> userManager,
@@ -21,10 +20,9 @@ public class IdentityBusiness : IIdentityBusiness
         _signInManager = signInManager;
         _userManager = userManager;
         _jwtBusiness = jwtBusiness;
-        //_jwtOptions = jwtOptions.Value;
     }
 
-    public async Task SignUpUser(UserSignUpDtoRequest userSignUpDtoRequest)
+    public async Task<IdentityUser> SignUpUser(UserSignUpDtoRequest userSignUpDtoRequest)
     {
         var identityUser = new IdentityUser
         {
@@ -37,9 +35,11 @@ public class IdentityBusiness : IIdentityBusiness
             
         if (result.Succeeded)
             await _userManager.SetLockoutEnabledAsync(identityUser, false);
+
+        return await _userManager.FindByEmailAsync(identityUser.Email) ?? throw new ApplicationException("User was not created");
     }
 
-    public async Task<UserLoginDtoResponse> Login(UserLoginDtoRequest userLoginDtoRequest)
+    public async Task<UserLoginDtoResponse> Authenticate(UserLoginDtoRequest userLoginDtoRequest)
     {
         var result = await _signInManager.PasswordSignInAsync(userLoginDtoRequest.Email,
             userLoginDtoRequest.Password,
@@ -60,58 +60,39 @@ public class IdentityBusiness : IIdentityBusiness
 
         var user = await _userManager.FindByEmailAsync(userLoginDtoRequest.Email);
         var claims = await GetClaims(user);
-        var jwtToken = _jwtBusiness.GenerateJwtToken(user, claims);
 
-        return new UserLoginDtoResponse() { AccessToken = jwtToken, RefreshToken = string.Empty };
+        return GenerateTokens(user, claims);
     }
 
-    //public async Task<UsuarioLoginResponse> LoginSemSenha(string usuarioId)
-    //{
-    //    var usuarioLoginResponse = new UsuarioLoginResponse();
-    //    var usuario = await _userManager.FindByIdAsync(usuarioId);
+    public async Task<UserLoginDtoResponse> RefreshToken(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
 
-    //    if (await _userManager.IsLockedOutAsync(usuario))
-    //        usuarioLoginResponse.AdicionarErro("Essa conta está bloqueada");
-    //    else if (!await _userManager.IsEmailConfirmedAsync(usuario))
-    //        usuarioLoginResponse.AdicionarErro("Essa conta precisa confirmar seu e-mail antes de realizar o login");
+        if (await _userManager.IsLockedOutAsync(user))
+            throw new ApplicationException("This account is blocked/locked out");
 
-    //    if (usuarioLoginResponse.Sucesso)
-    //        return await GerarCredenciais(usuario.Email);
+        var claims = await GetClaims(user);
 
-    //    return usuarioLoginResponse;
-    //}
+        return GenerateTokens(user, claims);
+    }
+    private UserLoginDtoResponse GenerateTokens(IdentityUser user, IList<Claim> claims)
+    {
+        var jwtToken = _jwtBusiness.GenerateJwtToken(user, claims);
+        var refreshToken = _jwtBusiness.GenerateJwtToken(user, claims, true);
 
-    //private async Task<UsuarioLoginResponse> GerarCredenciais(string email)
-    //{
-    //    var user = await _userManager.FindByEmailAsync(email);
-    //    var accessTokenClaims = await ObterClaims(user, adicionarClaimsUsuario: true);
-    //    var refreshTokenClaims = await ObterClaims(user, adicionarClaimsUsuario: false);
-
-    //    var dataExpiracaoAccessToken = DateTime.Now.AddSeconds(_jwtOptions.AccessTokenExpiration);
-    //    var dataExpiracaoRefreshToken = DateTime.Now.AddSeconds(_jwtOptions.RefreshTokenExpiration);
-
-    //    var accessToken = GerarToken(accessTokenClaims, dataExpiracaoAccessToken);
-    //    var refreshToken = GerarToken(refreshTokenClaims, dataExpiracaoRefreshToken);
-
-    //    return new UsuarioLoginResponse
-    //    (
-    //        sucesso: true,
-    //        accessToken: accessToken,
-    //        refreshToken: refreshToken
-    //    );
-    //}
-
+        return new UserLoginDtoResponse() { AccessToken = jwtToken, RefreshToken = refreshToken };
+    }
 
     private async Task<IList<Claim>> GetClaims(IdentityUser user)
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.Name, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
-            new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString(CultureInfo.InvariantCulture))
+            new (JwtRegisteredClaimNames.Sub, user.Id),
+            new (JwtRegisteredClaimNames.Name, user.UserName),
+            new (JwtRegisteredClaimNames.Email, user.Email),
+            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new (JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString(CultureInfo.InvariantCulture)),
+            new (JwtRegisteredClaimNames.Iat, DateTime.Now.ToString(CultureInfo.InvariantCulture))
         };
 
         var userClaims = await _userManager.GetClaimsAsync(user);

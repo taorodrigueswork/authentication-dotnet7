@@ -4,15 +4,10 @@ using Entities.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.v1;
 
-[ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Produces("application/json")]
-[Consumes("application/json")]
-[ApiVersion("1.0")]
 [Authorize]
-public class ScheduleController : ControllerBase
+public class ScheduleController : BaseController
 {
     private readonly IBusiness<ScheduleDtoRequest, ScheduleEntity> _scheduleBusiness;
 

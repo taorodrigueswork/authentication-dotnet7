@@ -4,15 +4,10 @@ using Entities.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.v1;
 
-[ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
-[Produces("application/json")]
-[Consumes("application/json")]
-[ApiVersion("1.0")]
 [Authorize]
-public class PersonController : ControllerBase
+public class PersonController : BaseController
 {
     private readonly IBusiness<PersonDtoRequest, PersonEntity> _personBusiness;
 

@@ -1,11 +1,16 @@
 using API;
 using API.AppSettings;
+using API.CustomMiddlewares;
+using API.Extensions;
 using Business;
 using Business.Interfaces;
+using Entities.Configurations;
 using Entities.DTO.Request.Day;
 using Entities.DTO.Request.Person;
 using Entities.DTO.Request.Schedule;
 using Entities.Entity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -18,10 +23,6 @@ using Persistence.Repository.GenericRepository;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-using API.Configurations;
-using API.CustomMiddlewares;
-using Entities.Configurations;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -80,6 +81,7 @@ try
         services.AddScoped<IBusiness<DayDtoRequest, DayEntity>, DayBusiness>();
         services.AddScoped<IBusiness<ScheduleDtoRequest, ScheduleEntity>, ScheduleBusiness>();
         services.AddScoped<IIdentityBusiness, IdentityBusiness>();
+        services.AddScoped<IJwtBusiness, JwtBusiness>();
 
         // Invoking action filters to validate the model state for all entities received in POST and PUT requests
         // https://code-maze.com/aspnetcore-modelstate-validation-web-api/
@@ -90,13 +92,18 @@ try
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.ConfigureOptions<SwaggerSetup>();
-        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
+        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         
         var seqUrl = builder.Configuration.GetRequiredSection("Seq").Get<Seq>()?.Url;
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        // get configuration from appsettings.json using Option Pattern. After that I can use JwtOptions inject in a Business class
-        builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Bearer"));
+
+        // identity configuration
+        services.AddDefaultIdentity<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApiContext>()
+            .AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<ApiContext>(options =>
         {
@@ -105,7 +112,9 @@ try
         });
 
         // Adding JWT Bearer Authentication
-        builder.Services.AddAuthentication().AddJwtBearer();
+        builder.Services.AddAuthentication(builder.Configuration);
+
+        builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
         // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
         builder.Host.UseSerilog(new LoggerConfiguration()
@@ -136,6 +145,7 @@ try
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
+            // Show last version first in Swagger
             app.UseSwaggerUI(options =>
             {
                 foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions.Reverse())
