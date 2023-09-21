@@ -31,31 +31,6 @@ try
 
     ConfigureMiddleware(app);
 
-    // seed data creating roles and user admin
-    using (var scope = app.Services.CreateScope())
-    {
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-        var identityBusiness = scope.ServiceProvider.GetRequiredService<IIdentityBusiness>();
-
-        // creating admin user
-        var newUser = await identityBusiness.SignUpUser(new UserSignUpDtoRequest()
-        { Email = "admin@teste.com", Password = "admin123" });
-
-        // creating roles
-        if (!(await roleManager.RoleExistsAsync(Roles.Admin)) &&
-            !(await roleManager.RoleExistsAsync(Roles.User)))
-        {
-            await roleManager.CreateAsync(new IdentityRole(Roles.User));
-            await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
-        }
-
-        // add admin role to admin user
-        await userManager.AddToRoleAsync(newUser, Roles.Admin);
-        await userManager.AddToRoleAsync(newUser, Roles.User);
-    }
-
     app.Run();
 
 
@@ -120,33 +95,25 @@ try
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
         dbContext.Database.Migrate();
+        scope.Initialize();// TODO seed data creating roles and user admin. Refactor this using a better aproach. The await / async is not being used
 
+        // swagger config
         var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
         {
-            app.UseSwagger();
-            // Show last version first in Swagger
-            app.UseSwaggerUI(options =>
+            foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions.Reverse())// Show last version first in Swagger
             {
-                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions.Reverse())
-                {
-                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-                        description.GroupName.ToUpperInvariant());
-                }
-            });
-            app.UseDeveloperExceptionPage();
-        }
+                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                    description.GroupName.ToUpperInvariant());
+            }
+        });
+        app.UseDeveloperExceptionPage();
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-
         app.UseHttpsRedirection();
-
         app.UseAuthorization();
-
         app.UseSerilogRequestLogging();
-
         app.MapControllers();
     }
 }

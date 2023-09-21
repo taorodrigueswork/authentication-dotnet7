@@ -22,7 +22,14 @@ public class ScheduleBusiness : IBusiness<ScheduleDtoRequest, ScheduleEntity>
     }
     public async Task<ScheduleEntity> Add(ScheduleDtoRequest scheduleDto)
     {
-        var schedule = await _scheduleRepository.InsertAsync(_mapper.Map<ScheduleEntity>(scheduleDto));
+        // Fetch only the required days from the database using their IDs
+        var days = await _dayRepository.GetDaysAsync(scheduleDto.Days);
+
+        var schedule = await _scheduleRepository.InsertAsync(new ScheduleEntity()
+        {
+            Name = scheduleDto.Name,
+            Days = days
+        });
 
         _logger.LogInformation($"Added schedule ", schedule);
 

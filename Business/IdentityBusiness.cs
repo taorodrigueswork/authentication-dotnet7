@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using Persistence.Interfaces;
 
 namespace Business;
 
@@ -12,6 +14,9 @@ public class IdentityBusiness : IIdentityBusiness
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IJwtBusiness _jwtBusiness;
+
+    public const string REFRESHTOKEN = nameof(REFRESHTOKEN);
+    public const string API = nameof(API);
 
     public IdentityBusiness(SignInManager<IdentityUser> signInManager,
         UserManager<IdentityUser> userManager,
@@ -32,7 +37,7 @@ public class IdentityBusiness : IIdentityBusiness
         };
 
         var result = await _userManager.CreateAsync(identityUser, userSignUpDtoRequest.Password);
-            
+
         if (result.Succeeded)
             await _userManager.SetLockoutEnabledAsync(identityUser, false);
 
@@ -43,7 +48,7 @@ public class IdentityBusiness : IIdentityBusiness
     {
         var result = await _signInManager.PasswordSignInAsync(userLoginDtoRequest.Email,
             userLoginDtoRequest.Password,
-            false, 
+            false,
             true);
 
         if (!result.Succeeded)
@@ -61,25 +66,31 @@ public class IdentityBusiness : IIdentityBusiness
         var user = await _userManager.FindByEmailAsync(userLoginDtoRequest.Email);
         var claims = await GetClaims(user);
 
-        return GenerateTokens(user, claims);
+        return await GenerateTokens(user, claims);
     }
 
-    public async Task<UserLoginDtoResponse> RefreshToken(string email)
+    public async Task<UserLoginDtoResponse> RefreshToken(string refreshToken)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var userEmail = _jwtBusiness.GetUserEmailFromJwtToken(refreshToken);
+        var user = await _userManager.FindByEmailAsync(userEmail);
 
         if (await _userManager.IsLockedOutAsync(user))
             throw new ApplicationException("This account is blocked/locked out");
 
         var claims = await GetClaims(user);
+        
+        // delete old refresh token
+        await _userManager.RemoveAuthenticationTokenAsync(user, API, nameof(REFRESHTOKEN));
 
-        return GenerateTokens(user, claims);
+        return await GenerateTokens(user, claims);
     }
 
-    private UserLoginDtoResponse GenerateTokens(IdentityUser user, IList<Claim> claims)
+    private async Task<UserLoginDtoResponse> GenerateTokens(IdentityUser user, IList<Claim> claims)
     {
         var jwtToken = _jwtBusiness.GenerateJwtToken(user, claims);
         var refreshToken = _jwtBusiness.GenerateJwtToken(user, new List<Claim>(), true);
+
+        await _userManager.SetAuthenticationTokenAsync(user, API, REFRESHTOKEN, refreshToken);
 
         return new UserLoginDtoResponse() { AccessToken = jwtToken, RefreshToken = refreshToken };
     }

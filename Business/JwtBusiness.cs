@@ -39,6 +39,13 @@ public class JwtBusiness : IJwtBusiness
         return handler.WriteToken(token);
     }
 
+    public string GetUserEmailFromJwtToken(string token)
+    {
+        var jwtToken = new JwtSecurityToken(jwtEncodedString: token);
+        string userEmail = jwtToken.Claims.First(c => c.Type == "email").Value;
+        return userEmail;
+    }
+
     private static ClaimsIdentity GenerateClaims(IdentityUser identityUser, IList<Claim> claimsList)
     {
         var claims = new ClaimsIdentity();

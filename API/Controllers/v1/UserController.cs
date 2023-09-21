@@ -1,15 +1,9 @@
-﻿using Business;
-using Business.Interfaces;
+﻿using Business.Interfaces;
 using Entities.DTO.Request.UserIdentity;
 using Entities.DTO.Response.UserIdentity;
-using Entities.Entity;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Security.Claims;
-using Entities.Constants;
 
 namespace API.Controllers.v1;
 
@@ -54,25 +48,20 @@ public class UserController : BaseController
     }
 
     /// <summary>
-    /// uses the refresh token to generate new valid tokens and refresh token.
+    /// Uses the refresh token to generate new valid tokens and refresh token.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
+    /// <param name="refreshToken">Refresh token</param>
     /// <returns></returns>
     /// <response code="200">A new token was generated as well a refresh token</response>
     /// <response code="401">Refresh token doesn't have authorization</response>
     [ProducesResponseType(typeof(UserLoginDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize]
+    [AllowAnonymous]
     //[Authorize(Roles = Roles.Admin)] // Pra validar se o usuario tem a Role exigida
     //[ClaimsAuthorize(ClaimTypes.Produto, "Ler")] // https://www.youtube.com/watch?v=IGqYodVNB6c&ab_channel=Andr%C3%A9Secco
     [HttpPost("refresh-token")]
-    public async Task<ActionResult<UserLoginDtoResponse>> RefreshLogin()
+    public async Task<ActionResult<UserLoginDtoResponse>> RefreshLogin(string refreshToken)
     {
-        var identity = HttpContext.User.Identity as ClaimsIdentity;
-
-        var userEmail = identity?.FindFirst(ClaimTypes.Email)?.Value;
-
-        return Ok(await _identityBusiness.RefreshToken(userEmail));
+        return Ok(await _identityBusiness.RefreshToken(refreshToken));
     }
 }
