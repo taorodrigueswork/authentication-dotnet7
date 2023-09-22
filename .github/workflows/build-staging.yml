@@ -1,4 +1,4 @@
-name: Build and push the latest build to staging
+name: Build and push the latest build to staging ACR
 
 # This workflow will build a docker container, publish it to Azure Container Registry, and deploy it to Azure Kubernetes Service.
 # Before running the workflow, you need to set up the following GitHub secrets:
