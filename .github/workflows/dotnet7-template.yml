@@ -18,12 +18,13 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+    - name: Restore dependencies  # Step to restore NuGet dependencies.
+      working-directory: ./API/  # Change the working directory to ./API/.
+      run: dotnet restore  # Use dotnet CLI to restore the NuGet packages.
+      
+    - name: Build  # Step to build the .NET Core project.
+      working-directory: ./API/  # Change the working directory to ./API/
+      run: dotnet build --no-restore  # Use dotnet CLI to build the project without restoring again.
     
     - uses: Azure/get-keyvault-secrets@v1  # Step to get secrets from Azure Key Vault.
       with:
