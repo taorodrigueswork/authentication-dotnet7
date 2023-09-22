@@ -90,7 +90,7 @@ public class SwaggerSetup : IConfigureNamedOptions<SwaggerGenOptions>
     {
         var info = new OpenApiInfo()
         {
-            Title = ".NET Core (.NET 7) Web API",
+            Title = ".NET 7 Web API Template with Identity and JWT",
             Version = description.ApiVersion.ToString()
         };
 
