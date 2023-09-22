@@ -68,7 +68,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: webapp
-        path: .\API\${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        path: .\API\publish
         
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
