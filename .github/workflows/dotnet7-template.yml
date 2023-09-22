@@ -18,6 +18,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+        
     - name: Restore dependencies  # Step to restore NuGet dependencies.
       working-directory: ./API/  # Change the working directory to ./API/.
       run: dotnet restore  # Use dotnet CLI to restore the NuGet packages.
@@ -49,12 +50,15 @@ jobs:
         JwtPrivateKey: ${{ steps.azKeyVaultSecretAction.outputs.JwtPrivateKey }} 
     
     - name: Publish
+      working-directory: ./API/ 
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+    
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        
   deploy:
     runs-on: windows-latest
     needs: build
