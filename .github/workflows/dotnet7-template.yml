@@ -25,7 +25,13 @@ jobs:
     - name: Build  # Step to build the .NET Core project.
       working-directory: ./API/  # Change the working directory to ./API/
       run: dotnet build --no-restore  # Use dotnet CLI to build the project without restoring again.
-    
+   
+    - uses: Azure/login@v1  # Step to log in to Azure using the provided credentials.
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}  # Access Azure credentials from GitHub secrets.
+        enable-AzPSSession: true
+        allow-no-subscriptions: true
+        
     - uses: Azure/get-keyvault-secrets@v1  # Step to get secrets from Azure Key Vault.
       with:
         keyvault: "api-template-key-vault"  # Specify the Azure Key Vault name.
