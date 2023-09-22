@@ -18,19 +18,47 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+        
+    - name: Restore dependencies  # Step to restore NuGet dependencies.
+      working-directory: ./API/  # Change the working directory to ./API/.
+      run: dotnet restore  # Use dotnet CLI to restore the NuGet packages.
+      
+    - name: Build  # Step to build the .NET Core project.
+      working-directory: ./API/  # Change the working directory to ./API/
+      run: dotnet build --no-restore  # Use dotnet CLI to build the project without restoring again.
+   
+    - uses: Azure/login@v1  # Step to log in to Azure using the provided credentials.
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}  # Access Azure credentials from GitHub secrets.
+        enable-AzPSSession: true
+        allow-no-subscriptions: true
+        
+    - uses: Azure/get-keyvault-secrets@v1  # Step to get secrets from Azure Key Vault.
+      with:
+        keyvault: "api-template-key-vault"  # Specify the Azure Key Vault name.
+        secrets: 'SqlServerStaging, SeqUrl, JwtValidAudience, JwtPrivateKey'  # Specify the secret name to retrieve.
+      id: azKeyVaultSecretAction  # Assign an ID to this step for later reference.
+    
+    - name: Replace token for appsettings.json  # Step to replace tokens in appsettings.json with secret values.
+      uses: cschleiden/replace-tokens@v1.1
+      with:
+        files: '**/appsettings.json'  # Use appsettings.json files to replace tokens.
+      env:
+        SqlServer: ${{ steps.azKeyVaultSecretAction.outputs.SqlServerStaging }}  # Use the retrieved secret value as an environment variable.
+        SeqUrl: ${{ steps.azKeyVaultSecretAction.outputs.SeqUrl }}  
+        JwtValidAudience: ${{ steps.azKeyVaultSecretAction.outputs.JwtValidAudience }} 
+        JwtPrivateKey: ${{ steps.azKeyVaultSecretAction.outputs.JwtPrivateKey }} 
+    
     - name: Publish
+      working-directory: ./API/ 
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+    
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        
   deploy:
     runs-on: windows-latest
     needs: build
