@@ -51,13 +51,14 @@ jobs:
     
     - name: Publish
       working-directory: ./API/ 
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }}
+      run: dotnet publish -c Release "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }}
     
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        if-no-files-found: error
         
   deploy:
     runs-on: windows-latest
