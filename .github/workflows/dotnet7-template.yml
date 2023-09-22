@@ -51,7 +51,7 @@ jobs:
     
     - name: Publish
       working-directory: ./API/ 
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} -c Release
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" -c Release
     
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
