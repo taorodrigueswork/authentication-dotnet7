@@ -54,7 +54,7 @@ jobs:
     - uses: Azure/get-keyvault-secrets@v1  # Step to get secrets from Azure Key Vault.
       with:
         keyvault: "api-template-key-vault"  # Specify the Azure Key Vault name.
-        secrets: 'SqlServerStaging'  # Specify the secret name to retrieve.
+        secrets: 'SqlServerStaging, SeqUrl, JwtValidAudience, JwtPrivateKey'  # Specify the secret name to retrieve.
       id: azKeyVaultSecretAction  # Assign an ID to this step for later reference.
     
     - name: Replace token for appsettings.json  # Step to replace tokens in appsettings.json with secret values.
@@ -63,6 +63,9 @@ jobs:
         files: '**/appsettings.json'  # Use appsettings.json files to replace tokens.
       env:
         SqlServer: ${{ steps.azKeyVaultSecretAction.outputs.SqlServerStaging }}  # Use the retrieved secret value as an environment variable.
+        SeqUrl: ${{ steps.azKeyVaultSecretAction.outputs.SeqUrl }}  
+        JwtValidAudience: ${{ steps.azKeyVaultSecretAction.outputs.JwtValidAudience }} 
+        JwtPrivateKey: ${{ steps.azKeyVaultSecretAction.outputs.JwtPrivateKey }} 
         
     - name: Build Image without DockerFile using Microsoft.NET.Build.Containers  # Step to build the Docker image using Microsoft.NET.Build.Containers.
       working-directory: ./API/  # Change the working directory to ./API/.
