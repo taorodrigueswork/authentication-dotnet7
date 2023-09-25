@@ -29,6 +29,8 @@ jobs:
     - uses: Azure/login@v1.1  # Step to log in to Azure using the provided credentials.
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}  # Access Azure credentials from GitHub secrets.
+        enable-AzPSSession: true
+        allow-no-subscriptions: true
         
     - uses: Azure/get-keyvault-secrets@v1  # Step to get secrets from Azure Key Vault.
       with:
