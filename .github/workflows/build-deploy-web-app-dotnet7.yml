@@ -64,3 +64,4 @@ jobs:
         slot-name: "production"
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C91D410C54EA45D4BD7A341C1524615C }}
         package: ${{env.DOTNET_ROOT}}/myapp
+        retryCountOnTaskFailure: 10
