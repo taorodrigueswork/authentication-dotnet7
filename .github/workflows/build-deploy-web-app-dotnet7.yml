@@ -56,7 +56,7 @@ jobs:
     - name: Publish Artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: webapp
+        name: ${{ env.AZURE_WEBAPP_NAME }}
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     
   deploy:
@@ -66,7 +66,7 @@ jobs:
     - name: Download artifact from build job
       uses: actions/download-artifact@v3
       with:
-        name: webapp
+        name: ${{ env.AZURE_WEBAPP_NAME }}
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
     - name: Deploy to Azure WebApp using publish profile credentials
       uses: azure/webapps-deploy@v2
