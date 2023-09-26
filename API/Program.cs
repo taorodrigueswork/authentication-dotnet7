@@ -3,10 +3,6 @@ using API.Configurations;
 using API.CustomMiddlewares;
 using API.DependencyInjection;
 using API.Extensions;
-using Business.Interfaces;
-using Entities.Constants;
-using Entities.DTO.Request.UserIdentity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +64,9 @@ try
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
 
+        // Add health checks
+        builder.Services.AddHealthChecks(connectionString);
+
         // Adding JWT Bearer Authentication
         builder.Services.AddAuthentication(builder.Configuration);
 
@@ -112,6 +111,10 @@ try
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseHttpsRedirection();
+
+        // Health check general endpoint
+        app.UseHealthChecks();
+
         app.UseAuthorization();
         app.UseSerilogRequestLogging();
         app.MapControllers();
