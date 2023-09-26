@@ -1,7 +1,6 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Net;
 
 namespace API.Extensions;
 
@@ -30,7 +29,6 @@ public static class HealthChecksSetup
             setup.MaximumHistoryEntriesPerEndpoint(50); // Set the maximum history entries by endpoint that will be served by the UI api middleware
             
             setup.AddHealthCheckEndpoint("Basic Health Check", "/health");
-            setup.AddHealthCheckEndpoint("Basic Health Check", $"http://{Dns.GetHostName()}/healthchecks-ui");
         }).AddInMemoryStorage();
     }
 
