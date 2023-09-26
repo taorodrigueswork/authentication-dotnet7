@@ -3,6 +3,7 @@ using API.Configurations;
 using API.CustomMiddlewares;
 using API.DependencyInjection;
 using API.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,20 @@ try
     {
         builder.Host.ConfigureAppSettings();
 
+        // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
+        var appInsightInstrumentationKey = builder.Configuration.GetRequiredSection("ApplicationInsights:InstrumentationKey").Value;
+
+        builder.Host.UseSerilog(new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .WriteTo.Console()
+            .WriteTo.Debug()
+            .WriteTo.ApplicationInsights(new TelemetryConfiguration { InstrumentationKey = appInsightInstrumentationKey }, TelemetryConverter.Traces)
+            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
+            .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
+            .ReadFrom.Configuration(builder.Configuration)
+            .CreateLogger());
+
         builder.Services.AddControllers().AddJsonOptions(options =>
         {   // avoid circular references when returning JSON in the API
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -55,7 +70,6 @@ try
 
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        var seqUrl = builder.Configuration.GetRequiredSection("Seq").Get<Seq>()?.Url;
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
         builder.Services.AddDbContext<ApiContext>(options =>
@@ -71,18 +85,6 @@ try
         builder.Services.AddAuthentication(builder.Configuration);
 
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
-
-        // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
-        builder.Host.UseSerilog(new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .Enrich.WithMachineName()
-            .WriteTo.Console()
-            .WriteTo.Debug()
-            .WriteTo.Seq(serverUrl: seqUrl!)
-            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
-            .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
-            .ReadFrom.Configuration(builder.Configuration)
-            .CreateLogger());
 
         // Add services to the container.
         builder.Services.RegisterServices(builder.Configuration);
