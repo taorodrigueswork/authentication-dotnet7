@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
@@ -34,6 +35,11 @@ try
     void ConfigureServices(IServiceCollection services)
     {
         builder.Host.ConfigureAppSettings();
+
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.Listen(IPAddress.Any, 8080);
+        });
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {   // avoid circular references when returning JSON in the API
