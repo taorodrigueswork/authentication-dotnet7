@@ -5,13 +5,12 @@ on:
     - main
 env:
   AZURE_WEBAPP_NAME: dotnet7-template
-  AZURE_WEBAPP_PACKAGE_PATH: .
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 7.0.x
   WORKING_DIRECTORY: .
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET SDK
@@ -25,12 +24,11 @@ jobs:
       
     - name: Build  # Step to build the .NET Core project.
       working-directory: ./API/  # Change the working directory to ./API/
-      run: dotnet build --no-restore  # Use dotnet CLI to build the project without restoring again.
+      run: dotnet build --no-restore --configuration Release  # Use dotnet CLI to build the project without restoring again.
    
-    - uses: Azure/login@v1  # Step to log in to Azure using the provided credentials.
+    - uses: Azure/login@v1.4.4  # Step to log in to Azure using the provided credentials.
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}  # Access Azure credentials from GitHub secrets.
-        enable-AzPSSession: true
         allow-no-subscriptions: true
         
     - uses: Azure/get-keyvault-secrets@v1  # Step to get secrets from Azure Key Vault.
@@ -51,29 +49,19 @@ jobs:
     
     - name: Publish
       working-directory: ./API/ 
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" -c Release
-    
-    - name: Publish Artifacts
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+    - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v3
       with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        if-no-files-found: error
-        
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v3
-      with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        
-    - name: Deploy to Azure WebApp
+        name: .net-app
+        path: ${{env.DOTNET_ROOT}}/myapp
+    
+    - name: Deploy to Azure WebApp using publish profile credentials
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: 'Production'
+        slot-name: "production"
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C91D410C54EA45D4BD7A341C1524615C }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: ${{env.DOTNET_ROOT}}/myapp
+        retryCountOnTaskFailure: 10
