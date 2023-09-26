@@ -1,5 +1,4 @@
 using API;
-using API.Configurations;
 using API.CustomMiddlewares;
 using API.DependencyInjection;
 using API.Extensions;
@@ -12,21 +11,33 @@ using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
-
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+    
+    // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
+    var appInsightInstrumentationKey = builder.Configuration.GetRequiredSection("ApplicationInsights:InstrumentationKey").Value;
+
+    builder.Host.UseSerilog(new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.Debug()
+        .WriteTo.ApplicationInsights(new TelemetryConfiguration { InstrumentationKey = appInsightInstrumentationKey }, TelemetryConverter.Traces)
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
+        .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
+        .Filter.ByExcluding(c =>
+            c.Properties.Any(p => p.Value.ToString().Contains("swagger") ||
+            p.Value.ToString().Contains("health")))
+        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("health"))
+        .ReadFrom.Configuration(builder.Configuration)
+        .CreateLogger());
 
     ConfigureServices(builder.Services);
-
-    Log.Information("Starting web host");
 
     var app = builder.Build();
 
     ConfigureMiddleware(app);
+
+    app.Logger.LogInformation("Starting app");
 
     app.Run();
 
@@ -35,20 +46,6 @@ try
     void ConfigureServices(IServiceCollection services)
     {
         builder.Host.ConfigureAppSettings();
-
-        // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
-        var appInsightInstrumentationKey = builder.Configuration.GetRequiredSection("ApplicationInsights:InstrumentationKey").Value;
-
-        builder.Host.UseSerilog(new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .Enrich.WithMachineName()
-            .WriteTo.Console()
-            .WriteTo.Debug()
-            .WriteTo.ApplicationInsights(new TelemetryConfiguration { InstrumentationKey = appInsightInstrumentationKey }, TelemetryConverter.Traces)
-            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
-            .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
-            .ReadFrom.Configuration(builder.Configuration)
-            .CreateLogger());
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {   // avoid circular references when returning JSON in the API
