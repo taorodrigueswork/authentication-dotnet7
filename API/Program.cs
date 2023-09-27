@@ -100,7 +100,9 @@ try
         app.UseHealthChecks();
 
         app.UseAuthorization();
+
         app.UseSerilogRequestLogging();
+
         app.MapControllers();
     }
 }

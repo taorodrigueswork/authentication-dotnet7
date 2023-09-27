@@ -30,7 +30,7 @@ public class DayBusiness : IBusiness<DayDtoRequest, DayEntity>
     {
         var day = await _dayRepository.InsertAsync(_mapper.Map<DayEntity>(entity));
 
-        _logger.LogInformation($"Added day ", entity);
+        _logger.LogInformation("Added day {@entity}", entity);
 
         return day;
     }
@@ -43,12 +43,12 @@ public class DayBusiness : IBusiness<DayDtoRequest, DayEntity>
 
         await _dayRepository.DeleteAsync(day);
 
-        _logger.LogInformation($"Deleted day.", day);
+        _logger.LogInformation("Deleted day {@day}", day);
     }
 
     public async Task<DayEntity?> GetById(int id) => await _dayRepository.GetDayWithSubclassesAsync(id);
 
-    public async Task<DayEntity?> Update(int id, DayDtoRequest entity)
+    public async Task<DayEntity?> Update(int id, DayDtoRequest personDto)
     {
         var day = await _dayRepository.GetDayWithSubclassesAsync(id);
 
@@ -58,10 +58,10 @@ public class DayBusiness : IBusiness<DayDtoRequest, DayEntity>
         await _dayPersonRepository.DeleteByDayIdAsync(id);
 
         // Fetch only the required people from the database using their IDs
-        var people = await _personRepository.GetPeopleAsync(entity.People);
+        var people = await _personRepository.GetPeopleAsync(personDto.People);
 
-        day.Day = entity.Day;
-        day.Schedule = await _scheduleRepository.FindByIdAsync(entity.ScheduleId) ?? throw new InvalidOperationException($"Schedule with id {entity.ScheduleId} was not found");
+        day.Day = personDto.Day;
+        day.Schedule = await _scheduleRepository.FindByIdAsync(personDto.ScheduleId) ?? throw new InvalidOperationException($"Schedule with id {personDto.ScheduleId} was not found");
 
         // Assign the fetched people to the day
         day.People.Clear();// Clear the old list of people in the memory
@@ -69,7 +69,7 @@ public class DayBusiness : IBusiness<DayDtoRequest, DayEntity>
 
         await _dayRepository.UpdateAsync(day);
 
-        _logger.LogInformation("Updated day with ID {day.Id} : {day}", day.Id, day);
+        _logger.LogInformation("Updated day with ID {@day.Id} : {@day}", day.Id, day);
 
         return day;
     }

@@ -21,7 +21,7 @@ public class PersonBusiness : IBusiness<PersonDtoRequest, PersonEntity>
         var personEntity = _mapper.Map<PersonEntity>(personDto);
         var person = await _personRepository.InsertAsync(personEntity);
 
-        _logger.LogInformation("Added person {person}", person);
+        _logger.LogInformation("Added person {@person}", person);
 
         return person;
     }
@@ -32,7 +32,8 @@ public class PersonBusiness : IBusiness<PersonDtoRequest, PersonEntity>
 
         ArgumentNullException.ThrowIfNull(person, $"The person with id {id} was not found.");
 
-        _logger.LogInformation($"Deleted person.", person);
+        _logger.LogInformation("Deleted person {@person}", person);
+
         await _personRepository.DeleteAsync(person);
     }
 
@@ -41,20 +42,20 @@ public class PersonBusiness : IBusiness<PersonDtoRequest, PersonEntity>
         return await _personRepository.FindByIdAsync(id);
     }
 
-    public async Task<PersonEntity?> Update(int id, PersonDtoRequest personDTO)
+    public async Task<PersonEntity?> Update(int id, PersonDtoRequest personDto)
     {
         var person = await _personRepository.FindByIdAsync(id);
 
         ArgumentNullException.ThrowIfNull(person, $"The person with id {id} was not found");
 
         // Not using AutoMapper here because it can cause issues with EF Core
-        person.Name = personDTO.Name;
-        person.Phone = personDTO.Phone;
-        person.Email = personDTO.Email;
+        person.Name = personDto.Name;
+        person.Phone = personDto.Phone;
+        person.Email = personDto.Email;
 
         await _personRepository.UpdateAsync(person);
 
-        _logger.LogInformation("Updated person with name {person.Name} and ID {person.Id}", person.Name, person.Id);
+        _logger.LogInformation("Updated person with name {@person.Name} and ID {@person.Id}", person.Name, person.Id);
 
         return person;
     }

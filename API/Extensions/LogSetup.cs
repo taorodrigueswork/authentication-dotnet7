@@ -1,5 +1,4 @@
-﻿using API.Configurations;
-using Microsoft.ApplicationInsights.Extensibility;
+﻿using Microsoft.ApplicationInsights.Extensibility;
 using Serilog;
 
 namespace API.Extensions;
@@ -33,7 +32,6 @@ public static class LogSetup
                 .WriteTo.Console()
                 .WriteTo.Debug()
                 .WriteTo.ApplicationInsights(new TelemetryConfiguration { InstrumentationKey = appInsightInstrumentationKey }, TelemetryConverter.Traces)
-                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
                 .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
                 .Filter.ByExcluding(c =>
                     c.Properties.Any(p => p.Value.ToString().Contains("swagger") ||

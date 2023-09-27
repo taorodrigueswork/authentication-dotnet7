@@ -31,7 +31,7 @@ public class ScheduleBusiness : IBusiness<ScheduleDtoRequest, ScheduleEntity>
             Days = days
         });
 
-        _logger.LogInformation($"Added schedule ", schedule);
+        _logger.LogInformation("Added schedule {@schedule}", schedule);
 
         return schedule;
     }
@@ -44,19 +44,19 @@ public class ScheduleBusiness : IBusiness<ScheduleDtoRequest, ScheduleEntity>
 
         await _scheduleRepository.DeleteAsync(schedule);
 
-        _logger.LogInformation($"Deleted schedule.", schedule);
+        _logger.LogInformation("Deleted schedule {@schedule}", schedule);
     }
 
     public async Task<ScheduleEntity?> GetById(int id) => await _scheduleRepository.GetByIdWithSubclassesAsync(id);
 
-    public async Task<ScheduleEntity?> Update(int id, ScheduleDtoRequest scheduleDto)
+    public async Task<ScheduleEntity?> Update(int id, ScheduleDtoRequest personDto)
     {
         var schedule = await _scheduleRepository.GetByIdWithSubclassesAsync(id);
 
         ArgumentNullException.ThrowIfNull(schedule, $"The schedule with id {id} was not found.");
 
         // Fetch only the required days from the database using their IDs
-        var days = await _dayRepository.GetDaysAsync(scheduleDto.Days);
+        var days = await _dayRepository.GetDaysAsync(personDto.Days);
 
         // Assign the fetched days to the schedule
         schedule.Days.Clear();// Clear the old list of days in the memory
