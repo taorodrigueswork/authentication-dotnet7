@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using Swashbuckle.AspNetCore.SwaggerUI;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace API.Extensions;
 

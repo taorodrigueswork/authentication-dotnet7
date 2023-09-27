@@ -2,7 +2,6 @@ using API;
 using API.CustomMiddlewares;
 using API.DependencyInjection;
 using API.Extensions;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +13,8 @@ using System.Text.Json.Serialization;
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    
-    // Add Serilog to the application https://www.youtube.com/watch?v=0acSdHJfk64
-    var appInsightInstrumentationKey = builder.Configuration.GetRequiredSection("ApplicationInsights:InstrumentationKey").Value;
 
-    builder.Host.UseSerilog(new LoggerConfiguration()
-        .WriteTo.Console()
-        .WriteTo.Debug()
-        .WriteTo.ApplicationInsights(new TelemetryConfiguration { InstrumentationKey = appInsightInstrumentationKey }, TelemetryConverter.Traces)
-        .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
-        .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
-        .Filter.ByExcluding(c =>
-            c.Properties.Any(p => p.Value.ToString().Contains("swagger") ||
-            p.Value.ToString().Contains("health")))
-        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("health"))
-        .ReadFrom.Configuration(builder.Configuration)
-        .CreateLogger());
+    LogSetup.UseSerilog(builder);
 
     ConfigureServices(builder.Services);
 
@@ -40,7 +25,6 @@ try
     app.Logger.LogInformation("Starting app");
 
     app.Run();
-
 
     // Register your services/dependencies 
     void ConfigureServices(IServiceCollection services)
@@ -68,6 +52,7 @@ try
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        ArgumentNullException.ThrowIfNullOrEmpty(connectionString, $"Connection string is null");
 
         builder.Services.AddDbContext<ApiContext>(options =>
         {
