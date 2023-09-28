@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using System.Diagnostics.CodeAnalysis;
 
 namespace API.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ApiVersioningSetup
 {
     public static void AddVersioning(this IServiceCollection services)

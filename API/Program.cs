@@ -68,6 +68,8 @@ try
 
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
+        builder.Services.AddHttpLogging();
+
         // Add services to the container.
         builder.Services.RegisterServices(builder.Configuration);
     }
@@ -91,19 +93,21 @@ try
                     description.GroupName.ToUpperInvariant());
             }
         });
-        app.UseDeveloperExceptionPage();
-
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseHttpsRedirection();
 
         // Health check general endpoint
         app.UseHealthChecks();
 
+        app.UseDeveloperExceptionPage();
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+        app.UseHttpsRedirection();
+
         app.UseAuthorization();
 
-        app.UseSerilogRequestLogging();
-
         app.MapControllers();
+
+        app.UseHttpLogging();
     }
 }
 catch (Exception ex)

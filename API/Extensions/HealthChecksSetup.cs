@@ -1,9 +1,11 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace API.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class HealthChecksSetup
 {
     public static void AddHealthChecks(this IServiceCollection services, string connectionString)

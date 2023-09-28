@@ -11,32 +11,33 @@ using Persistence.Interfaces;
 using Persistence.Interfaces.GenericRepository;
 using Persistence.Repository;
 using Persistence.Repository.GenericRepository;
+using System.Diagnostics.CodeAnalysis;
 
-namespace API.DependencyInjection
+namespace API.DependencyInjection;
+
+[ExcludeFromCodeCoverage]
+public static class NativeInjectorConfig
 {
-    public static class NativeInjectorConfig
+    public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
     {
-        public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            // identity configuration
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApiContext>()
-                .AddDefaultTokenProviders();
+        // identity configuration
+        services.AddDefaultIdentity<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApiContext>()
+            .AddDefaultTokenProviders();
 
-            services.AddScoped<IdentityDbContext, ApiContext>();
+        services.AddScoped<IdentityDbContext, ApiContext>();
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<IDayRepository, DayRepository>();
-            services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<IDayPersonRepository, DayPersonRepository>();
-            services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<IDayRepository, DayRepository>();
+        services.AddScoped<IPersonRepository, PersonRepository>();
+        services.AddScoped<IDayPersonRepository, DayPersonRepository>();
+        services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
-            services.AddScoped<IBusiness<PersonDtoRequest, PersonEntity>, PersonBusiness>();
-            services.AddScoped<IBusiness<DayDtoRequest, DayEntity>, DayBusiness>();
-            services.AddScoped<IBusiness<ScheduleDtoRequest, ScheduleEntity>, ScheduleBusiness>();
-            services.AddScoped<IIdentityBusiness, IdentityBusiness>();
-            services.AddScoped<IJwtBusiness, JwtBusiness>();
-        }
+        services.AddScoped<IBusiness<PersonDtoRequest, PersonEntity>, PersonBusiness>();
+        services.AddScoped<IBusiness<DayDtoRequest, DayEntity>, DayBusiness>();
+        services.AddScoped<IBusiness<ScheduleDtoRequest, ScheduleEntity>, ScheduleBusiness>();
+        services.AddScoped<IIdentityBusiness, IdentityBusiness>();
+        services.AddScoped<IJwtBusiness, JwtBusiness>();
     }
 }
