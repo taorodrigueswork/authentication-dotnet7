@@ -8,7 +8,7 @@ using Persistence.Context;
 
 #nullable disable
 
-namespace Persistence.Migrations
+namespace Persistence.Migrations.SqlServer
 {
     [DbContext(typeof(ApiContext))]
     partial class ApiContextModelSnapshot : ModelSnapshot

@@ -9,7 +9,7 @@ using Persistence.Context;
 
 #nullable disable
 
-namespace Persistence.Migrations
+namespace Persistence.Migrations.SqlServer
 {
     [DbContext(typeof(ApiContext))]
     [Migration("20230919175850_CreateIdentityTables")]

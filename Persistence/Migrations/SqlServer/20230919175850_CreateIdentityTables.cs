@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Persistence.Migrations
+namespace Persistence.Migrations.SqlServer
 {
     /// <inheritdoc />
     public partial class CreateIdentityTables : Migration

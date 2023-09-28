@@ -11,23 +11,23 @@ namespace IntegrationTests;
 
 [TestFixture]
 [SingleThreadedAttribute]
-public class PersonControllerIntegrationTest : TestingWebAppFactory
+public class PersonControllerIntegrationTest
 {
     private HttpClient? _client;
-    private ApiContext? _context;
+    private SqliteDataContext? _context;
     private const string ApiV1Person = "/api/v1.0/Person";
 
     [SetUp]
     public void SetUp()
     {
-        WebApplicationFactory<Program> factory = new TestingWebAppFactory();
+        WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions()
         {
             AllowAutoRedirect = false
         });
 
         var scope = factory.Services.CreateScope();
-        _context = scope.ServiceProvider.GetRequiredService<ApiContext>()!;
+        _context = scope.ServiceProvider.GetRequiredService<SqliteDataContext>()!;
     }
 
     //	Marks a method that should be called after each test method. One such method should be present before each test class.

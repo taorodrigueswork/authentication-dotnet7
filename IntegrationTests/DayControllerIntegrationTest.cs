@@ -11,24 +11,24 @@ namespace IntegrationTests;
 
 [TestFixture]
 [SingleThreadedAttribute]
-public class DayControllerIntegrationTest : TestingWebAppFactory
+public class DayControllerIntegrationTest
 {
     private HttpClient? _client;
-    private ApiContext? _context;
+    private SqliteDataContext? _context;
     private Fixture? _fixture;
     private const string ApiV1Day = "/api/v1.0/Day";
 
     [SetUp]
     public void SetUp()
     {
-        WebApplicationFactory<Program> factory = new TestingWebAppFactory();
+        WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions()
         {
             AllowAutoRedirect = false
         });
 
         var scope = factory.Services.CreateScope();
-        _context = scope.ServiceProvider.GetRequiredService<ApiContext>()!;
+        _context = scope.ServiceProvider.GetRequiredService<SqliteDataContext>()!;
 
         _fixture = CustomAutoDataAttribute.CreateOmitOnRecursionFixture();
     }

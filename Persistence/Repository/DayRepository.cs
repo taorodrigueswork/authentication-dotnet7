@@ -1,5 +1,6 @@
 ﻿
 using Entities.Entity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Persistence.Interfaces;
@@ -9,7 +10,7 @@ namespace Persistence.Repository;
 
 public class DayRepository : GenericRepository<DayEntity>, IDayRepository
 {
-    public DayRepository(ApiContext apiContext)
+    public DayRepository(IdentityDbContext apiContext)
         : base(apiContext)
     {
 

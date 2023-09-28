@@ -1,5 +1,6 @@
 ﻿
 using Entities.Entity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Persistence.Interfaces;
@@ -10,7 +11,7 @@ namespace Persistence.Repository;
 public class ScheduleRepository : GenericRepository<ScheduleEntity>, IScheduleRepository
 {
 
-    public ScheduleRepository(ApiContext apiContext)
+    public ScheduleRepository(IdentityDbContext apiContext)
         : base(apiContext)
     {
 

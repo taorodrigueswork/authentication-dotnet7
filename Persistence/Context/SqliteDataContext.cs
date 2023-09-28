@@ -1,17 +1,29 @@
 ﻿using Entities.Entity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Persistence.Context;
 
 [ExcludeFromCodeCoverage]
-public class ApiContext : IdentityDbContext
+public class SqliteDataContext : IdentityDbContext
 {
-    public ApiContext(DbContextOptions<ApiContext> options)
-        : base(options)
+    public SqliteDataContext(DbContextOptions<SqliteDataContext> options) : base(options)
     {
+        Database.OpenConnection();
+        //Database.EnsureCreated();
+    }
 
+    public override void Dispose()
+    {
+        Database.CloseConnection();
+        base.Dispose();
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        // connect to sqlite database
+        options.UseSqlite("DataSource=:memory:");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -19,7 +31,7 @@ public class ApiContext : IdentityDbContext
         // call base method to create identity tables
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApiContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(SqliteDataContext).Assembly);
 
         // Configuring indirect many-to-many relationship between Day and Person using explicit class DayPersonEntity
         // check this link for more information: https://docs.microsoft.com/en-us/ef/core/modeling/relationships#many-to-many
@@ -31,12 +43,6 @@ public class ApiContext : IdentityDbContext
                 l => l.HasOne<PersonEntity>().WithMany().HasForeignKey(e => e.PersonId).OnDelete(DeleteBehavior.Cascade),
                 r => r.HasOne<DayEntity>().WithMany().HasForeignKey(e => e.DayId).OnDelete(DeleteBehavior.Cascade));
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // Method intentionally left empty.
-    }
-
 
     public DbSet<PersonEntity>? Person { get; set; }
     public DbSet<DayEntity>? Day { get; set; }
