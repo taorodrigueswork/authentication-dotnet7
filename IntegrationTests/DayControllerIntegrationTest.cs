@@ -1,19 +1,25 @@
 using Entities.DTO.Request.Day;
+using IntegrationTests.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Persistence.Context;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using Entities.Constants;
 
 namespace IntegrationTests;
 
 [TestFixture]
-[SingleThreadedAttribute]
-public class DayControllerIntegrationTest
+[SingleThreaded]
+public class DayControllerIntegrationTest : BaseConfigurationIntegrationTest
 {
-    private HttpClient? _client;
+    //private HttpClient? _client;
     private SqliteDataContext? _context;
     private Fixture? _fixture;
     private const string ApiV1Day = "/api/v1.0/Day";
@@ -21,15 +27,9 @@ public class DayControllerIntegrationTest
     [SetUp]
     public void SetUp()
     {
-        WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
-        _client = factory.CreateClient(new WebApplicationFactoryClientOptions()
-        {
-            AllowAutoRedirect = false
-        });
-
         var scope = factory.Services.CreateScope();
         _context = scope.ServiceProvider.GetRequiredService<SqliteDataContext>()!;
-
+        _context?.Database.EnsureCreated();
         _fixture = CustomAutoDataAttribute.CreateOmitOnRecursionFixture();
     }
 
@@ -52,7 +52,8 @@ public class DayControllerIntegrationTest
         _context?.SaveChanges();
 
         // Act
-        var response = await _client?.GetAsync($"{ApiV1Day}/1")!;
+        var response = await _client?.WithJwtBearerToken(token => token.WithRole(Roles.Admin))
+            .GetAsync($"{ApiV1Day}/1")!;
 
         // Assert
         response.EnsureSuccessStatusCode();
