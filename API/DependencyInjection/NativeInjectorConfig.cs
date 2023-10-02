@@ -18,30 +18,17 @@ namespace API.DependencyInjection;
 [ExcludeFromCodeCoverage]
 public static class NativeInjectorConfig
 {
-    public static void RegisterServices(this IServiceCollection services, 
-        IConfiguration configuration, 
+    public static void RegisterServices(this IServiceCollection services,
+        IConfiguration configuration,
         IWebHostEnvironment environment)
     {
-        if (environment.IsProduction())
-        {
-            // identity configuration
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApiContext>()
-                .AddDefaultTokenProviders();
+        // identity configuration
+        services.AddDefaultIdentity<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApiContext>()
+            .AddDefaultTokenProviders();
 
-            services.AddScoped<IdentityDbContext, ApiContext>();
-        }
-        else
-        {
-            // identity configuration
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<SqliteDataContext>()
-                .AddDefaultTokenProviders();
-
-            services.AddScoped<IdentityDbContext, SqliteDataContext>();
-        }
+        services.AddScoped<IdentityDbContext, ApiContext>();
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IDayRepository, DayRepository>();

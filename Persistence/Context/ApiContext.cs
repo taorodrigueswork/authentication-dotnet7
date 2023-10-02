@@ -14,6 +14,8 @@ public class ApiContext : IdentityDbContext
 
     }
 
+    public ApiContext() { }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // call base method to create identity tables

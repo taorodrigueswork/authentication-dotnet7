@@ -9,7 +9,7 @@ using Persistence.Context;
 
 #nullable disable
 
-namespace Persistence.Migrations.SqlServer
+namespace Persistence.Migrations
 {
     [DbContext(typeof(ApiContext))]
     [Migration("20230712173110_InitialCreate")]

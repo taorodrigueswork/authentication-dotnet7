@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\SqlLite\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Model\Entities.csproj" />
   </ItemGroup>
 

@@ -54,22 +54,11 @@ try
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         ArgumentNullException.ThrowIfNullOrEmpty(connectionString, "Connection string is null");
 
-        if (builder.Environment.IsProduction())
+        builder.Services.AddDbContext<ApiContext>(options =>
         {
-            builder.Services.AddDbContext<ApiContext>(options =>
-            {
-                options.UseSqlServer(connectionString, optionsBuilder =>
-                        optionsBuilder.MigrationsAssembly("Persistence"))
-                       .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            });
-        }
-        else
-        {
-            builder.Services.AddDbContext<SqliteDataContext>(options =>
-                options.UseSqlite("DataSource=:memory:", optionsBuilder =>
-                    optionsBuilder.MigrationsAssembly("Persistence"))
-                );
-        }
+            options.UseSqlServer(connectionString)
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        });
 
         // Add health checks
         builder.Services.AddHealthChecks(connectionString);
@@ -88,20 +77,10 @@ try
     void ConfigureMiddleware(WebApplication app)
     {
         // Migrate latest database changes during startup
-        using (var scope = app.Services.CreateScope())
-        {
-            if (builder.Environment.IsProduction())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
-                dbContext.Database.Migrate();
-            }
-            else
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<SqliteDataContext>();
-                dbContext.Database.Migrate();
-            }
-            
-        }
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
+        dbContext.Database.Migrate();
+
         //scope.Initialize();// TODO seed data creating roles and user admin. Refactor this using a better aproach. The await / async is not being used
 
         // swagger config

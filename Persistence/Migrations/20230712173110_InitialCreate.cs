@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 #nullable disable
 
-namespace Persistence.Migrations.SqlServer;
+namespace Persistence.Migrations;
 
 /// <inheritdoc />
 [ExcludeFromCodeCoverage]
