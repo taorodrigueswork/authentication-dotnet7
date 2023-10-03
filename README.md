@@ -1,14 +1,14 @@
-[![Run Unit Test and Get Code Coverage](https://github.com/taorodrigueswork/rest-api/actions/workflows/unit-tests-code-coverage.yml/badge.svg)](https://github.com/taorodrigueswork/rest-api/actions/workflows/unit-tests-code-coverage.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=coverage)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=bugs)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=code_smells)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=ncloc)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=security_rating)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=sqale_index)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_rest-api&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=taorodrigueswork_rest-api)
+[![Run Unit Test and Get Code Coverage](https://github.com/taorodrigueswork/authentication-dotnet7/actions/workflows/unit-tests-code-coverage.yml/badge.svg)](https://github.com/taorodrigueswork/authentication-dotnet7/actions/workflows/unit-tests-code-coverage.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=alert_status)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=coverage)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=bugs)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=code_smells)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=ncloc)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=security_rating)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=sqale_index)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=taorodrigueswork_authentication-dotnet7&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=taorodrigueswork_authentication-dotnet7)
  
 # REST API TEMPLATE .NET CORE 7 / ENTITY FRAMEWORK CORE 7
 
@@ -45,7 +45,7 @@ This project uses the following technologies:
 - [Coverlet](https://github.com/coverlet-coverage/coverlet)
 - Validation Filter Attribute to validate DTOs
 - [API Versioning](https://github.com/dotnet/aspnet-api-versioning/wiki) and improved swagger documentation to support multiple versions
-- Azure Container Registry
+- Authentication and Authorization using JWT Tokens and Identity.
 
 ## Project Design
 
