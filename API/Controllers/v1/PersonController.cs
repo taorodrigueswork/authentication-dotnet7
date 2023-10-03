@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.v1;
 
+[Authorize]
 public class PersonController : BaseController
 {
     private readonly IBusiness<PersonDtoRequest, PersonEntity> _personBusiness;
@@ -72,5 +73,4 @@ public class PersonController : BaseController
         await _personBusiness.Delete(id);
         return NoContent();
     }
-
 }

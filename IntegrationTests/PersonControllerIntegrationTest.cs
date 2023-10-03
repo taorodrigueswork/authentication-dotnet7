@@ -1,54 +1,30 @@
+using Entities.Constants;
 using Entities.DTO.Request.Person;
 using IntegrationTests.Authentication;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Persistence.Context;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
-using Entities.Constants;
 
 namespace IntegrationTests;
 
-[TestFixture]
-[SingleThreaded]
 public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
 {
-    private HttpClient? _client;
-    private ApiContext? _context;
     private const string ApiV1Person = "/api/v1.0/Person";
-
-    [SetUp]
-    public void SetUp()
-    {
-        WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
-        _client = factory.CreateClient(new WebApplicationFactoryClientOptions()
-        {
-            AllowAutoRedirect = false
-        });
-
-        var scope = factory.Services.CreateScope();
-        _context = scope.ServiceProvider.GetRequiredService<ApiContext>()!;
-    }
-
-    //	Marks a method that should be called after each test method. One such method should be present before each test class.
-    [TearDown]
-    public void TearDown()
-    {
-        _context?.Database.EnsureDeleted();
-    }
 
     [Test, CustomAutoData]
     public async Task GetPersonFromId_Success(PersonEntity personEntity)
     {
         // Arrange
-        //_context?.Database.EnsureCreated();
-        //_context?.Person?.Add(personEntity);
-        //_context?.SaveChanges();
+        Context?.Person?.Add(personEntity);
+        Context?.SaveChanges();
 
         // Act
-        var response = await _client?.WithJwtBearerToken(token => token.WithRole(Roles.Admin)).GetAsync($"{ApiV1Person}/{personEntity.Id}")!;
+        var response = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .GetAsync($"{ApiV1Person}/{personEntity.Id}")!;
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -59,14 +35,27 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
         Assert.AreEqual(personEntity.Phone, responseJson?.Phone);
     }
 
-    [TestMethod]
+    [Test]
     public async Task GetPersonFromId_NotFound()
     {
         // Act
-        var response = await _client?.GetAsync($"{ApiV1Person}/0")!;
+        var response = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .GetAsync($"{ApiV1Person}/0");
 
         // Assert
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Test]
+    public async Task GetPersonFromId_Unauthorized()
+    {
+        // Act
+        var response = await Client
+            .GetAsync($"{ApiV1Person}/0");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Test, CustomAutoData]
@@ -77,7 +66,7 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client?.PostAsync(ApiV1Person, content)!;
+        var response = await Client?.PostAsync(ApiV1Person, content)!;
 
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
@@ -97,7 +86,9 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client?.PostAsync(ApiV1Person, content)!;
+        var response = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .PostAsync(ApiV1Person, content)!;
 
         // Assert
         Assert.AreEqual(HttpStatusCode.UnprocessableEntity, response.StatusCode);
@@ -113,12 +104,14 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
     public async Task DeletePersonAsync_ShouldReturn_Status204NoContent_WhenPersonExists(PersonEntity personEntity)
     {
         //Arrange
-        _context?.Database.EnsureCreated();
-        _context?.Person?.Add(personEntity);
-        _context?.SaveChanges();
+        Context?.Database.EnsureCreated();
+        Context?.Person?.Add(personEntity);
+        Context?.SaveChanges();
 
         //Act
-        var result = await _client?.DeleteAsync($"{ApiV1Person}/{personEntity.Id}")!;
+        var result = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .DeleteAsync($"{ApiV1Person}/{personEntity.Id}")!;
 
         //Assert
         Assert.IsNotNull(result);
@@ -129,7 +122,9 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
     public async Task DeletePersonAsync_ShouldReturn_Status404NotFound_WhenPersonDoesNotExist()
     {
         //Act
-        var result = await _client?.DeleteAsync($"{ApiV1Person}/-1")!;
+        var result = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .DeleteAsync($"{ApiV1Person}/-1")!;
 
         //Assert
         Assert.IsNotNull(result);
@@ -140,10 +135,10 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
     public async Task UpdatePersonAsync_ReturnsOkObjectResult_WhenPersonIsUpdated(PersonEntity personEntity)
     {
         // Arrange
-        _context?.Database.EnsureCreated();
+        Context?.Database.EnsureCreated();
         personEntity.Days = new List<DayEntity>();
-        _context?.Person?.Add(personEntity);
-        _context?.SaveChanges();
+        Context?.Person?.Add(personEntity);
+        Context?.SaveChanges();
 
         PersonDtoRequest personDto = new() { Email = "NewEmail", Name = "NewName", Phone = "NewPhone" };
         var jsonContent = JsonConvert.SerializeObject(personDto);
@@ -151,7 +146,9 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client?.PutAsync($"{ApiV1Person}/{personEntity.Id}", content)!;
+        var response = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .PutAsync($"{ApiV1Person}/{personEntity.Id}", content)!;
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -174,7 +171,9 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client?.PutAsync($"{ApiV1Person}/-1", content)!;
+        var response = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .PutAsync($"{ApiV1Person}/-1", content)!;
 
         // Assert
         Assert.IsNotNull(response);
@@ -189,7 +188,9 @@ public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         // Act
-        var response = await _client?.PutAsync($"{ApiV1Person}/1", content)!;
+        var response = await Client
+            .WithJwtBearerToken(token => token.WithRole(Roles.User))
+            .PutAsync($"{ApiV1Person}/1", content)!;
 
         // Assert
         Assert.AreEqual(HttpStatusCode.UnprocessableEntity, response.StatusCode);
