@@ -84,6 +84,16 @@ try
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
             dbContext.Database.Migrate();
+            var services = scope.ServiceProvider;
+            try
+            {
+                IdentityInitializerSetup.Initialize(services);
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred seeding the DB.");
+            }
             //scope.Initialize();// TODO seed data creating roles and user admin. Refactor this using a better aproach. The await / async is not being used
         }
 
