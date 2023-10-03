@@ -1,7 +1,9 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Entities.Configurations;
 
+[ExcludeFromCodeCoverage]
 public class JwtOptions
 {
     public required string ValidAudience { get; set; }

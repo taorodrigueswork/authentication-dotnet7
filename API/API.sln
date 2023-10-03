@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "..\Tests\Tests.csproj", "{E63F8D4F-FB54-4431-ACDD-C51D79DD4D39}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "..\IntegrationTests\IntegrationTests.csproj", "{C7B1AB41-89EB-4212-B3CC-6DF9ED96B2E7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API.IntegrationTests", "..\API.IntegrationTests\API.IntegrationTests.csproj", "{C5E5DF12-AA8E-4B8D-80B9-381E9292FA11}"
 EndProject
 Global
@@ -50,10 +48,6 @@ Global
 		{E63F8D4F-FB54-4431-ACDD-C51D79DD4D39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E63F8D4F-FB54-4431-ACDD-C51D79DD4D39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E63F8D4F-FB54-4431-ACDD-C51D79DD4D39}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7B1AB41-89EB-4212-B3CC-6DF9ED96B2E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7B1AB41-89EB-4212-B3CC-6DF9ED96B2E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7B1AB41-89EB-4212-B3CC-6DF9ED96B2E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7B1AB41-89EB-4212-B3CC-6DF9ED96B2E7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C5E5DF12-AA8E-4B8D-80B9-381E9292FA11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5E5DF12-AA8E-4B8D-80B9-381E9292FA11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5E5DF12-AA8E-4B8D-80B9-381E9292FA11}.Release|Any CPU.ActiveCfg = Release|Any CPU

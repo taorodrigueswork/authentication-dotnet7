@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 using Serilog;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using API.Configurations;
 
 try
 {
@@ -76,12 +78,14 @@ try
 
     void ConfigureMiddleware(WebApplication app)
     {
-        // Migrate latest database changes during 
-        using var scope = app.Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
-        dbContext.Database.Migrate();
-
-        //scope.Initialize();// TODO seed data creating roles and user admin. Refactor this using a better aproach. The await / async is not being used
+        if (!UnitTestDetector.IsInUnitTest)
+        {
+            // Migrate latest database changes during 
+            using var scope = app.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
+            dbContext.Database.Migrate();
+            //scope.Initialize();// TODO seed data creating roles and user admin. Refactor this using a better aproach. The await / async is not being used
+        }
 
         // swagger config
         var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();

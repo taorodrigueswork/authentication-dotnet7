@@ -1,5 +1,8 @@
-﻿namespace API;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace API;
+
+[ExcludeFromCodeCoverage]
 public static class WebApplicationBuilder
 {
     public static IHostBuilder ConfigureAppSettings(this IHostBuilder host)
