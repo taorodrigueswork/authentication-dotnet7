@@ -34,11 +34,6 @@ public class ApiContext : IdentityDbContext
                 r => r.HasOne<DayEntity>().WithMany().HasForeignKey(e => e.DayId).OnDelete(DeleteBehavior.Cascade));
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // Method intentionally left empty.
-    }
-
 
     public DbSet<PersonEntity>? Person { get; set; }
     public DbSet<DayEntity>? Day { get; set; }

@@ -1,4 +1,5 @@
 using Entities.DTO.Request.Person;
+using IntegrationTests.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -6,15 +7,16 @@ using Persistence.Context;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using Entities.Constants;
 
 namespace IntegrationTests;
 
 [TestFixture]
-[SingleThreadedAttribute]
-public class PersonControllerIntegrationTest
+[SingleThreaded]
+public class PersonControllerIntegrationTest : BaseConfigurationIntegrationTest
 {
     private HttpClient? _client;
-    private SqliteDataContext? _context;
+    private ApiContext? _context;
     private const string ApiV1Person = "/api/v1.0/Person";
 
     [SetUp]
@@ -27,7 +29,7 @@ public class PersonControllerIntegrationTest
         });
 
         var scope = factory.Services.CreateScope();
-        _context = scope.ServiceProvider.GetRequiredService<SqliteDataContext>()!;
+        _context = scope.ServiceProvider.GetRequiredService<ApiContext>()!;
     }
 
     //	Marks a method that should be called after each test method. One such method should be present before each test class.
@@ -41,12 +43,12 @@ public class PersonControllerIntegrationTest
     public async Task GetPersonFromId_Success(PersonEntity personEntity)
     {
         // Arrange
-        _context?.Database.EnsureCreated();
-        _context?.Person?.Add(personEntity);
-        _context?.SaveChanges();
+        //_context?.Database.EnsureCreated();
+        //_context?.Person?.Add(personEntity);
+        //_context?.SaveChanges();
 
         // Act
-        var response = await _client?.GetAsync($"{ApiV1Person}/{personEntity.Id}")!;
+        var response = await _client?.WithJwtBearerToken(token => token.WithRole(Roles.Admin)).GetAsync($"{ApiV1Person}/{personEntity.Id}")!;
 
         // Assert
         response.EnsureSuccessStatusCode();

@@ -57,7 +57,7 @@ try
         builder.Services.AddDbContext<ApiContext>(options =>
         {
             options.UseSqlServer(connectionString)
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                   .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
 
         // Add health checks
@@ -76,7 +76,7 @@ try
 
     void ConfigureMiddleware(WebApplication app)
     {
-        // Migrate latest database changes during startup
+        // Migrate latest database changes during 
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApiContext>();
         dbContext.Database.Migrate();
@@ -96,7 +96,7 @@ try
         });
 
         // Health check general endpoint
-        app.UseHealthChecks();
+        //app.UseHealthChecks();
 
         app.UseDeveloperExceptionPage();
 
